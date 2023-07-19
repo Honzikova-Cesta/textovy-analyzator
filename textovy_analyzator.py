@@ -4,6 +4,7 @@ author: Jan Procházka
 email: jan.prochazka92@gmail.com
 discord: .honzikovacesta
 """
+import sys
 
 TEXTS = ['''
 Situated about 10 miles west of Kemmerer,
@@ -33,53 +34,102 @@ in modern oceans. Other fish such as paddlefish,
 garpike and stingray are also present.'''
 ]
 
-#seznam (datový typ=slovník) registrovaných uživatelů
+oddelovac = '----------------------------------------'
+
+#seznam registrovaných uživatelů a jejich hesel
 registrovani_uzivatele = {'bob': '123', 'ann': 'pass123', 'mike': 'password123', 'liz': 'pass123'}
 
 #uživatel zadá své jméno a heslo
-zadane_jmeno = input('Zadejte své uživatelské jméno: ')
-zadane_heslo = input('Zadejte své heslo: ')
+zadane_jmeno = input('Zadejte své uživatelské jméno: ').lower()
+zadane_heslo = input('Zadejte své heslo: ').lower()
+print(oddelovac)
 
-#program zkontroluje jestli je jméno a heslo na seznamu registrovaných uživatelů
+#program zkontroluje zadané jméno a heslo jestli odpovídá některému z registrovaných uživatelů
 if zadane_jmeno in registrovani_uzivatele:
     if zadane_heslo == registrovani_uzivatele[zadane_jmeno]:
         print(f'Vítejte {zadane_jmeno}. Jste přihlášen a můžete analyzovat texty.')
     else:
-        print('Špatně zadané heslo.')
+        print('Špatně zadané heslo. Ukončuji program...')
+        sys.exit()
 else:
-    print('Špatně zadané jméno.')
+    print('Neregistrovaný uživatel. Ukončuji program...')
+    sys.exit()
 
 #volba textu ze zadaných možností a ošetření vyjímek (try/except jsem použil kvůli zadávání desetinných čísel které způsobovaly ValueError)
 volba_textu = input('Pomocí čísla 1-3 zvolte text, který chcete analyzovat: ')
+
 try:
     cislo = int(volba_textu)
     if cislo not in (1,2,3):
-        print(f'Číslo není v možnostech. Ukončuji program!')
-    else:
-        print(f'Zvolili jste text číslo: {cislo}')
-except ValueError:
-    print('Špatně zadaná hodnota. Ukončuji program!')
+        print(f'Číslo není v možnostech. Ukončuji program...')
+        sys.exit()
 
-#statistiky: 
-#počet slov
-#počet slov začínajících velkým písmenem
-#počet slov psaných velkými písmeny
-#počet slov psaných malými písmeny
-#počet čísel (ne cifer)
-#sumu všech čísel (ne cifer) v textu
+except ValueError:
+    print('Špatně zadaná hodnota. Ukončuji program...')
+    sys.exit()
 
 zvoleny_text = TEXTS[cislo-1]
+
+#rozklad textu na jednotlivá slova a jejich očištění od nežádoucích znaků
 slova_textu = zvoleny_text.split()
-pocet_slov = len(slova_textu)
-print(slova_textu)
-print(f'V textu je {pocet_slov} slov')
-
-pocet_slov_velke_pismeno = 0
+ocistena_slova = []
 for slovo in slova_textu:
-    if slovo[0].isupper() == True:
-        pocet_slov_velke_pismeno += 1
-print(f'{pocet_slov_velke_pismeno} slov má na začátku velké písmeno.')
+    ocistena_slova.append(slovo.strip('.,'))
 
+#statistické údaje z vybraného textu 
+pocet_slov = len(ocistena_slova)        #počet slov
+slova_prvni_pismeno_velke = 0
+slova_velka_pismena = 0
+slova_mala_pismena = 0
+pocet_cisel = 0
+soucet_cisel = 0
 
+for slovo in slova_textu:
+    if slovo[0].isupper() == True:      #počet slov začínajících velkým písmenem
+        slova_prvni_pismeno_velke += 1
+    elif slovo.isupper() == True:       #počet slov psaných velkými písmeny
+        slova_velka_pismena += 1
+    elif slovo.islower() == True:       #počet slov psaných malými písmeny
+        slova_mala_pismena += 1
+    elif slovo.isdigit() == True:       
+        pocet_cisel += 1                #počet čísel (ne cifer)
+        soucet_cisel += int(slovo)      #sumu všech čísel (ne cifer) v textu
 
+#vytištění statistických údajů s textem
+print(oddelovac)
+print(f'V textu je {pocet_slov} slov.')
+print(f'{slova_prvni_pismeno_velke} slov má na začátku velké písmeno.')
+print(f'{slova_velka_pismena} slov je psáno velkými písmeny.')
+print(f'{slova_mala_pismena} slov je psáno malými písmeny.')
+print(f'Celkový počet čísel v textu je {pocet_cisel}.')
+print(f'Součet všech čísel v textu je {soucet_cisel}.')
+print(oddelovac)
 
+#graf
+#delka slova - vyskyt graficky - pocet cislem
+slova_podle_poctu_pismen = {}
+for slovo in ocistena_slova:
+    if len(slovo) not in slova_podle_poctu_pismen:
+        slova_podle_poctu_pismen[len(slovo)] = 1
+    else:
+        slova_podle_poctu_pismen[len(slovo)] += 1
+
+serazena_slova = {klic: slova_podle_poctu_pismen[klic] for klic in sorted(slova_podle_poctu_pismen)}
+
+#nejvetsi hodnota ze slovniku
+nej_hodnota = 0
+for hodnota in serazena_slova.values():
+    if hodnota > nej_hodnota:
+        nej_hodnota = hodnota
+odsazeni = len('DÉLKA')
+
+#graf, který se umí přizpůsobit podle nejvyžší hodnoty
+print(f'{"DÉLKA":>{odsazeni}}|{"VÝSKYT":^{nej_hodnota}}|{"POČET"}')
+
+print(oddelovac)
+
+for klic, hodnota in serazena_slova.items():
+    pocet_vyskytu_graficky = hodnota * '*'
+    print(f'{klic:>{odsazeni}}|{pocet_vyskytu_graficky:<{nej_hodnota}}|{hodnota}')
+
+print(oddelovac)
