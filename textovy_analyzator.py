@@ -1,5 +1,5 @@
 """
-projekt_1.py: první projekt do Engeto Online Python Akademie
+textovy_analyzator.py: první projekt do Engeto Online Python Akademie
 author: Jan Procházka
 email: jan.prochazka92@gmail.com
 discord: .honzikovacesta
@@ -85,13 +85,13 @@ pocet_cisel = 0
 soucet_cisel = 0
 
 for slovo in slova_textu:
-    if slovo[0].isupper() == True:      #počet slov začínajících velkým písmenem
+    if slovo[0].isupper() is True:      #počet slov začínajících velkým písmenem
         slova_prvni_pismeno_velke += 1
-    elif slovo.isupper() == True:       #počet slov psaných velkými písmeny
+    elif slovo.isupper() is True:       #počet slov psaných velkými písmeny
         slova_velka_pismena += 1
-    elif slovo.islower() == True:       #počet slov psaných malými písmeny
+    elif slovo.islower() is True:       #počet slov psaných malými písmeny
         slova_mala_pismena += 1
-    elif slovo.isdigit() == True:       
+    elif slovo.isdigit() is True:       
         pocet_cisel += 1                #počet čísel (ne cifer)
         soucet_cisel += int(slovo)      #sumu všech čísel (ne cifer) v textu
 
